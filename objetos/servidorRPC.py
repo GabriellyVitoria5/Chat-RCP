@@ -1,12 +1,25 @@
 import rpyc
-from rpyc.utils.server import ThreadedServer
+from rpyc.utils.server import ThreadedServer # cria threads separadas para atender cada cliente
+
+usuarios_cadastrados = {}
+id_usuario = 1 # identificador único para cada usuário 
 
 # classe cria serviços que são chamados remotamente por clientes
 class BatePapoRPC(rpyc.Service):
-    
-    # cadastrar um usuário no sistema de bate papo pelo seu nome 
+
+    # cadastrar um usuário no sistema de bate papo pelo seu nome atribuindo um id para ele
     def exposed_ingressar_no_sistema(self, nome):
-        return "Ingressar no sistema"
+        global id_usuario
+        if(nome not in usuarios_cadastrados.values()):
+            usuarios_cadastrados[id_usuario] = nome
+            id_novo_usuario = id_usuario  
+            id_usuario += 1
+        
+            return f"{nome} ingressou no sistema com o identificador {id_novo_usuario}"
+        else:
+            for id, nome_cadastrado in usuarios_cadastrados.items():
+                if nome_cadastrado == nome:
+                    return f"{nome} já está cadastrado com o identificador {id}" 
 
     # permitir que usuários entrem em uma sala de bate papo com base na sua identificação
     def exposed_entrar_na_sala(self, id):
@@ -33,5 +46,5 @@ class BatePapoRPC(rpyc.Service):
         return "Listar usuários"
 
 # criar e iniciar instância do servidor chamando a classe BatePapoRPC
-t = ThreadedServer(BatePapoRPC, port=18861)
-t.start()
+servidor = ThreadedServer(BatePapoRPC, port=18861)
+servidor.start()
