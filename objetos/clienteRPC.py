@@ -1,22 +1,14 @@
 import rpyc
 import os  
 
-caminho_arquivo = "arquivo_teste.txt"
+# estabelece conexão com o servidor RPyC
+proxy = rpyc.connect('localhost', 18861, config={'allow_public_attrs': True})
 
-if os.path.exists(caminho_arquivo):
-    # se o arquivo existir, abre ele e conecta ao servidor
-    objeto_arquivo = open(caminho_arquivo)
-
-    # estabelece conexão com o servidor RPyC
-    proxy = rpyc.connect('localhost', 18861, config={'allow_public_attrs': True})
-    print("Conexão estabelecida com o servidor")
-
-    # faz a chamada remota ao servidor para contar as linhas no arquivo e depois exibir o resultado
-    n_linhas = proxy.root.contador_linha(objeto_arquivo)
-    print("Numero de linhas no arquivo: ", n_linhas)
-    
-    # fecha o arquivo depois do uso
-    objeto_arquivo.close()
-else:
-    # se o arquivo não existir, exibe uma mensagem de erro
-    print(f"O arquivo {caminho_arquivo} não foi encontrado.")
+# teste chamando os metodos principais
+print(proxy.root.ingressar_no_sistema("Ana"))
+print(proxy.root.entrar_na_sala(1))
+print(proxy.root.sair_da_sala(1))
+print(proxy.root.enviar_mensagem(1, "oi"))
+print(proxy.root.listar_mensagens())
+print(proxy.root.enviar_mensagem_usuario(2, "olá"))
+print(proxy.root.listar_usuarios())
