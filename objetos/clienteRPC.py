@@ -30,19 +30,31 @@ if(resposta_tem_sala_disponivel):
         print("\nRegra global para todas as salas:")
         print("- Novos usuários automaticamente mandam mensagens públicas por padrão")
         print("- Digite '*' para sair da sala")
-        print("- Digite '#' para começar a mandar mensagens privada")
+        print("- Digite '#' para começar a mandar mensagens privadas")
         print("- Digite '@' para voltar a mandar mensagens públicas\n")
         
+        modo_privado = False # controle para mandar mensagens orivadas
+
         # loop principal para mandar mensagens 
         while True:
             mensagem = input("Mensagem pública: ")
             
+            # entrar em um loop para mandar só mensagens provadas para um usuário
+            if mensagem == "#":
+                modo_privado = True
+                
+                while modo_privado:
+                    mensagem = input("Mensagem privada: ")
+                    if (mensagem == "@") or (mensagem == "*"):
+                        modo_privado = False
+
             # verificação para sair sa sala
             if mensagem == "*": 
                 resposta_sair_sala = proxy.root.sair_da_sala(id, nome_sala)
                 if resposta_sair_sala:
                     print(f"{nome} saiu da sala {nome_sala}.")
                     break
+
     else:
         print(mensagem_entrar_sala)
    
@@ -50,7 +62,6 @@ else:
     print("\nNenhuma sala disponível no momento. Volte mais tarde.")
 
 # teste chamando os metodos principais
-#print(proxy.root.sair_da_sala(1))
 #print(proxy.root.enviar_mensagem(1, "oi"))
 #print(proxy.root.listar_mensagens())
 #print(proxy.root.enviar_mensagem_usuario(2, "olá"))

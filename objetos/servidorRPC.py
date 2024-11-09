@@ -84,15 +84,15 @@ class BatePapoRPC(rpyc.Service):
         return False
 
     # enviar mensagens públicas para todos os usuários online dentro da sala
-    def exposed_enviar_mensagem(self, id, mensagem):
-        return "Enviar mensagem"
+    def exposed_enviar_mensagem(self, id, nome_sala, mensagem):
+        return "Enviar mensagem pública"
 
     # listar todas as mensagens enviadas na sala
     def exposed_listar_mensagens(self):
         return "Listar mensagens"
 
     # enviar mensagem privada para um usuário específico pelo id do destinatário
-    def exposed_enviar_mensagem_usuario(self, id_destinatario, mensagem):
+    def exposed_enviar_mensagem_usuario(self, id_remetente, id_destinatario, nome_sala, mensagem):
         return "Enviar mensagem privada para um usuário"
 
     # listar usuários ativos de uma sala de bate papo
