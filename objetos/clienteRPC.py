@@ -55,6 +55,14 @@ if(resposta_tem_sala_disponivel):
                     print(f"{nome} saiu da sala {nome_sala}.")
                     break
 
+            # enviar mensagem pública
+            # OBS: usuários difentes ainda não recebem as mensagens enviadas!!!
+            proxy.root.enviar_mensagem(id, nome_sala, mensagem)
+            
+            # só para teste
+            mensagens_publicas = proxy.root.listar_mensagens(nome_sala)
+            print(mensagens_publicas)
+
     else:
         print(mensagem_entrar_sala)
    
