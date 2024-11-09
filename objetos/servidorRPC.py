@@ -7,12 +7,12 @@ salas_bate_papo = {}
 
 # salas precisam armazenar usuários online e mensagens, mas separar mensagens privadas de públicas  
 def criar_sala_exemplo():
-    salas_bate_papo['Papo sobre jogos'] = {
+    salas_bate_papo['A'] = {
         'usuarios_online': [], 
         'mensagens_publicas': [], 
         'mensagens_privadas': {}
     }
-    salas_bate_papo['Cinema e filmes'] = {
+    salas_bate_papo['B'] = {
         'usuarios_online': [], 
         'mensagens_publicas': [], 
         'mensagens_privadas': {}
@@ -63,22 +63,25 @@ class BatePapoRPC(rpyc.Service):
     # permitir que usuários entrem em uma sala de bate papo com base na sua identificação
     def exposed_entrar_na_sala(self, id, nome_sala):
         if(id in usuarios_cadastrados.items()):
-            return "Usuário não encontrado no sistema! Não foi possível entrar na sala."
+            return False, "Usuário não encontrado no sistema! Não foi possível entrar na sala."
         
         if(nome_sala not in salas_bate_papo):
-            return "Sala não encontrada! Entre no sistema novamente e escolha uma sala disponível para entrar."
+            return False, "Sala não encontrada! Entre no sistema novamente e escolha uma sala disponível para entrar."
         
         if(id in salas_bate_papo[nome_sala]['usuarios_online']):
-            return f"Usuário {usuarios_cadastrados[id]} já está na sala {nome_sala}."
+            return False, f"Usuário {usuarios_cadastrados[id]} já está na sala {nome_sala}."
         
         # adicionar usuário na sala após as verificações
-        salas_bate_papo[nome_sala]['usuarios_online'].append(id_usuario)
+        salas_bate_papo[nome_sala]['usuarios_online'].append(id)
 
-        return f"{usuarios_cadastrados[id]} entrou na sala."
+        return True, f"{usuarios_cadastrados[id]} entrou em uma sala."
     
     # permitir que usuários saiam da sala de bate papo com base na sua identificação
-    def exposed_sair_da_sala(self, id):
-        return "Sair da sala."
+    def exposed_sair_da_sala(self, id,  nome_sala):
+        if (nome_sala in salas_bate_papo) and (id in salas_bate_papo[nome_sala]['usuarios_online']):
+            salas_bate_papo[nome_sala]['usuarios_online'].remove(id)
+            return True
+        return False
 
     # enviar mensagens públicas para todos os usuários online dentro da sala
     def exposed_enviar_mensagem(self, id, mensagem):
