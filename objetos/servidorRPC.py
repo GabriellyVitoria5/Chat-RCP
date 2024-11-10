@@ -50,15 +50,12 @@ class BatePapoRPC(rpyc.Service):
         
         resultado = []
         for nome_sala, sala_info in salas_bate_papo.items():
-            usuarios_online = sala_info['usuarios_online']
-            
-            # Chama o método exposed_listar_usuarios para listar os usuários online da sala
             usuarios_online_lista = self.exposed_listar_usuarios(nome_sala)
             
             if usuarios_online_lista:
-                resultado.append(f"\nSala: {nome_sala} \nUsuários Online:\n {usuarios_online_lista}")
+                resultado.append(f"\nSala: {nome_sala}\nUsuários Online:\n{usuarios_online_lista}")
             else:
-                resultado.append(f"\nSala: {nome_sala} \nNenhum usuário online.")
+                resultado.append(f"\nSala: {nome_sala}\nNenhum usuário online.")
         
         return "\n".join(resultado)
 
@@ -82,6 +79,7 @@ class BatePapoRPC(rpyc.Service):
     def exposed_sair_da_sala(self, id,  nome_sala):
         if (nome_sala in salas_bate_papo) and (id in salas_bate_papo[nome_sala]['usuarios_online']):
             salas_bate_papo[nome_sala]['usuarios_online'].remove(id)
+            print(f"{usuarios_cadastrados[id]} saiu da sala {nome_sala}")
             return True
         return False
 
