@@ -51,10 +51,12 @@ class BatePapoRPC(rpyc.Service):
         resultado = []
         for nome_sala, sala_info in salas_bate_papo.items():
             usuarios_online = sala_info['usuarios_online']
-            if usuarios_online:
-                # pegar nome dos usuários pelo id gerado para cada um
-                nomes_usuarios_online = [usuarios_cadastrados[id_usuario] for id_usuario in usuarios_online]
-                resultado.append(f"\nSala: {nome_sala} \nUsuários Online: {', '.join(nomes_usuarios_online)}")
+            
+            # Chama o método exposed_listar_usuarios para listar os usuários online da sala
+            usuarios_online_lista = self.exposed_listar_usuarios(nome_sala)
+            
+            if usuarios_online_lista:
+                resultado.append(f"\nSala: {nome_sala} \nUsuários Online:\n {usuarios_online_lista}")
             else:
                 resultado.append(f"\nSala: {nome_sala} \nNenhum usuário online.")
         
@@ -165,8 +167,18 @@ class BatePapoRPC(rpyc.Service):
             return "Usuário não tem mensagens privadas."
 
     # listar usuários ativos de uma sala de bate papo
-    def exposed_listar_usuarios(self):
-        return "Listar usuários"
+    def exposed_listar_usuarios(self, nome_sala):
+        if nome_sala not in salas_bate_papo:
+            return f"Sala {nome_sala} não encontrada."
+        
+        usuarios_online = salas_bate_papo[nome_sala]['usuarios_online']
+        
+        if not usuarios_online:
+            return "Nenhum usuário online."
+        
+        lista_usuarios_online = [f"{usuarios_cadastrados[usuario]}" for usuario in usuarios_online]
+
+        return "\n".join(lista_usuarios_online)
 
 # deixar uma sala criada para testes
 criar_sala_exemplo()

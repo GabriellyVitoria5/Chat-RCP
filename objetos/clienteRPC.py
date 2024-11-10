@@ -43,21 +43,37 @@ if(resposta_tem_sala_disponivel):
             if mensagem == "#":
                 modo_privado = True
 
-                # perguntar quem é o destinatário
-                destinatario = input("\nInforme o nome do destinatário: ")
-                sucesso_encontrar_destinatario, id_destinatario = proxy.root.encontrar_id_usuario(destinatario, nome_sala)
-                
-                if sucesso_encontrar_destinatario:
-                
-                    while modo_privado:
-                        mensagem = input("Mensagem privada: ")
-                        if (mensagem == "@") or (mensagem == "*"):
+                # dar uma lista de usuários online e perguntar qual o usuário quer escolher
+                resposta_usuarios_online = proxy.root.listar_usuarios(nome_sala)
+                if(resposta_usuarios_online):
+                    print("\n---- Lista de usuários online ----")
+                    print(resposta_usuarios_online)
+
+                    destinatario = input("\nInforme o nome do destinatário: ")
+
+                    if (mensagem == "@") or (mensagem == "*"):
                             modo_privado = False
-                        proxy.root.enviar_mensagem_usuario(id, id_destinatario, nome_sala, mensagem)
-                        
-                        # só para teste
-                        mensagens_privadas = proxy.root.listar_mensagens_privadas(id, nome_sala)
-                        print(mensagens_privadas)
+                            break
+
+                    sucesso_encontrar_destinatario, id_destinatario = proxy.root.encontrar_id_usuario(destinatario, nome_sala)
+                    
+                    # enviar mensagens privadas se encontrar o destinatário informado
+                    if sucesso_encontrar_destinatario:
+                    
+                        while modo_privado:
+                            mensagem = input("Mensagem privada: ")
+                            if (mensagem == "@") or (mensagem == "*"):
+                                modo_privado = False
+                                break
+
+                            proxy.root.enviar_mensagem_usuario(id, id_destinatario, nome_sala, mensagem)
+                            
+                            # só para teste
+                            mensagens_privadas = proxy.root.listar_mensagens_privadas(id, nome_sala)
+                            print(mensagens_privadas)
+
+                else:
+                    print("Usuário não encontrado\n")
 
             # verificação para sair sa sala
             if mensagem == "*": 
@@ -79,9 +95,3 @@ if(resposta_tem_sala_disponivel):
    
 else:
     print("\nNenhuma sala disponível no momento. Volte mais tarde.")
-
-# teste chamando os metodos principais
-#print(proxy.root.enviar_mensagem(1, "oi"))
-#print(proxy.root.listar_mensagens())
-#print(proxy.root.enviar_mensagem_usuario(2, "olá"))
-#print(proxy.root.listar_usuarios())
