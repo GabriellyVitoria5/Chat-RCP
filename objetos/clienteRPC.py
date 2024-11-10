@@ -54,6 +54,10 @@ if(resposta_tem_sala_disponivel):
                         if (mensagem == "@") or (mensagem == "*"):
                             modo_privado = False
                         proxy.root.enviar_mensagem_usuario(id, id_destinatario, nome_sala, mensagem)
+                        
+                        # só para teste
+                        mensagens_privadas = proxy.root.listar_mensagens_privadas(id, nome_sala)
+                        print(mensagens_privadas)
 
             # verificação para sair sa sala
             if mensagem == "*": 
@@ -68,7 +72,7 @@ if(resposta_tem_sala_disponivel):
             
             # só para teste
             mensagens_publicas = proxy.root.listar_mensagens(nome_sala)
-            print(mensagens_publicas)
+            #print(mensagens_publicas)
 
     else:
         print(mensagem_entrar_sala)

@@ -144,8 +144,25 @@ class BatePapoRPC(rpyc.Service):
         # enviar mensagens para destinatário e remetente
         # ...
     
-    def exposed_listar_mensagens_privadas(self):
-        return
+    # listar mensagens privadas, sejam elas enviadas ou recebidas 
+    def exposed_listar_mensagens_privadas(self, id, nome_sala):
+        if nome_sala not in salas_bate_papo:
+            return "Sala não encontrada."
+        
+        if id not in salas_bate_papo[nome_sala]['usuarios_online']:
+            return "Usuário não está online na sala."
+
+        mensagens_privadas_usuario = []
+        
+        # verificar mensagens em que o usuário era remetente ou destinatário
+        if id in salas_bate_papo[nome_sala]['mensagens_privadas']:
+            for mensagem in salas_bate_papo[nome_sala]['mensagens_privadas'][id]:
+                mensagens_privadas_usuario.append(mensagem['mensagem'])
+        
+        if mensagens_privadas_usuario:
+            return "\n".join(mensagens_privadas_usuario)
+        else:
+            return "Usuário não tem mensagens privadas."
 
     # listar usuários ativos de uma sala de bate papo
     def exposed_listar_usuarios(self):
