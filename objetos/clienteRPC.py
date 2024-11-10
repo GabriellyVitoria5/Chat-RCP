@@ -19,10 +19,10 @@ if(resposta_tem_sala_disponivel):
 
     # escolher uma sala
     nome_sala = input("\nEscreva o nome da sala que deseja entrar: ")
-    resposta_entrar_sala, mensagem_entrar_sala = proxy.root.entrar_na_sala(id, nome_sala)
+    sucesso_entrar_sala, mensagem_entrar_sala = proxy.root.entrar_na_sala(id, nome_sala)
 
     # entrar na sala
-    if(resposta_entrar_sala):
+    if(sucesso_entrar_sala):
         print(mensagem_entrar_sala)
 
         # informações iniciais sobre as salas
@@ -39,14 +39,21 @@ if(resposta_tem_sala_disponivel):
         while True:
             mensagem = input("Mensagem pública: ")
             
-            # entrar em um loop para mandar só mensagens provadas para um usuário
+            # entrar em um loop para mandar só mensagens privadas para um usuário
             if mensagem == "#":
                 modo_privado = True
+
+                # perguntar quem é o destinatário
+                destinatario = input("\nInforme o nome do destinatário: ")
+                sucesso_encontrar_destinatario, id_destinatario = proxy.root.encontrar_id_usuario(destinatario, nome_sala)
                 
-                while modo_privado:
-                    mensagem = input("Mensagem privada: ")
-                    if (mensagem == "@") or (mensagem == "*"):
-                        modo_privado = False
+                if sucesso_encontrar_destinatario:
+                
+                    while modo_privado:
+                        mensagem = input("Mensagem privada: ")
+                        if (mensagem == "@") or (mensagem == "*"):
+                            modo_privado = False
+                        proxy.root.enviar_mensagem_usuario(id, id_destinatario, nome_sala, mensagem)
 
             # verificação para sair sa sala
             if mensagem == "*": 

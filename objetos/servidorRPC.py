@@ -85,13 +85,17 @@ class BatePapoRPC(rpyc.Service):
 
     # enviar mensagens públicas para todos os usuários online dentro da sala
     def exposed_enviar_mensagem(self, id, nome_sala, mensagem):
+        if nome_sala not in salas_bate_papo:
+                return 
+        
         if id not in salas_bate_papo[nome_sala]['usuarios_online']:
-            return False, "Usuário não está na sala."
+            return 
         
         mensagem_formatada = f"{usuarios_cadastrados[id]}: {mensagem}"
         salas_bate_papo[nome_sala]['mensagens_publicas'].append((mensagem_formatada))
 
-        return "Enviar mensagem pública"
+        # enviar mensagem para todos os usuários online
+        # ... 
 
     # listar todas as mensagens enviadas na sala
     def exposed_listar_mensagens(self, nome_sala):
@@ -101,9 +105,47 @@ class BatePapoRPC(rpyc.Service):
         
         return "\n".join(mensagens)
 
+    def exposed_encontrar_id_usuario(self, nome_usuario, nome_sala):
+        if nome_sala not in salas_bate_papo:
+            return False, "Sala não encontrada!"
+        
+        usuarios_online = salas_bate_papo[nome_sala]['usuarios_online']
+        
+        for id_usuario in usuarios_online:
+            if usuarios_cadastrados[id_usuario] == nome_usuario:
+                return True, id_usuario
+        
+        return False, "Usuário não encontrado na sala."
+
     # enviar mensagem privada para um usuário específico pelo id do destinatário
     def exposed_enviar_mensagem_usuario(self, id_remetente, id_destinatario, nome_sala, mensagem):
-        return "Enviar mensagem privada para um usuário"
+        if nome_sala not in salas_bate_papo:
+                return 
+        
+        if (id_remetente not in salas_bate_papo[nome_sala]['usuarios_online']) and (id_destinatario not in salas_bate_papo[nome_sala]['usuarios_online']):
+            return 
+        
+        # iniciar a lista de mensagens privadas para o remetente e para o destinatário se eles não existirem ainda
+        if id_remetente not in salas_bate_papo[nome_sala]['mensagens_privadas']:
+            salas_bate_papo[nome_sala]['mensagens_privadas'][id_remetente] = []
+        
+        if id_destinatario not in salas_bate_papo[nome_sala]['mensagens_privadas']:
+            salas_bate_papo[nome_sala]['mensagens_privadas'][id_destinatario] = []
+        
+        mensagem_formatada = {
+            'remetente': id_remetente,  
+            'destinatario': id_destinatario,  
+            'mensagem': f"{usuarios_cadastrados[id_remetente]}: {mensagem}"  
+        }
+
+        salas_bate_papo[nome_sala]['mensagens_privadas'][id_remetente].append(mensagem_formatada)
+        salas_bate_papo[nome_sala]['mensagens_privadas'][id_destinatario].append(mensagem_formatada)
+
+        # enviar mensagens para destinatário e remetente
+        # ...
+    
+    def exposed_listar_mensagens_privadas(self):
+        return
 
     # listar usuários ativos de uma sala de bate papo
     def exposed_listar_usuarios(self):
