@@ -1,4 +1,10 @@
 import rpyc
+import time
+import threading
+
+# função chamada sempre que o servidor enviar uma nova mensagem
+def receber_mensagem(mensagem):
+    print(f"{mensagem}")
 
 # estabelece conexão com o servidor RPyC
 proxy = rpyc.connect('localhost', 18861, config={'allow_public_attrs': True})
@@ -7,7 +13,7 @@ print("----- Serviço de Bate-Papo RPC -----\n")
 
 # entrar no sistema
 nome = input("Informe seu nome: ")
-id = proxy.root.ingressar_no_sistema(nome)
+id = proxy.root.ingressar_no_sistema(nome, receber_mensagem)
 print(f"{nome} entrou no sistema com o identificador {id}")
 
 # escolher uma sala para entrar se houver salas disponíveis
@@ -88,9 +94,9 @@ if(resposta_tem_sala_disponivel):
                                 proxy.root.enviar_mensagem_usuario(id, id_destinatario, nome_sala, mensagem)
                             
                             # imprimir mensagens só para teste
-                            mensagens_privadas = proxy.root.listar_mensagens_privadas(id, nome_sala)
-                            print("\n\n- Teste mensagens privadas-")
-                            print(mensagens_privadas)
+                            #mensagens_privadas = proxy.root.listar_mensagens_privadas(id, nome_sala)
+                            #print("\n\n- Teste mensagens privadas-")
+                            #print(mensagens_privadas)
 
                 else:
                     print("Usuário não encontrado\n")
@@ -123,9 +129,9 @@ if(resposta_tem_sala_disponivel):
                 proxy.root.enviar_mensagem(id, nome_sala, mensagem)
             
             # imprimir mensagens só para teste
-            mensagens_publicas = proxy.root.listar_mensagens(nome_sala)
-            print("\n\n- Teste mensagens públicas -")
-            print(mensagens_publicas)
+            #mensagens_publicas = proxy.root.listar_mensagens(nome_sala)
+            #print("\n\n- Teste mensagens públicas -")
+            #print(mensagens_publicas)
 
     else:
         print(mensagem_entrar_sala)

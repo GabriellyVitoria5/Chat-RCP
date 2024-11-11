@@ -4,6 +4,7 @@ from rpyc.utils.server import ThreadedServer # cria threads separadas para atend
 usuarios_cadastrados = {}
 id_usuario = 1 # identificador único para cada usuário 
 salas_bate_papo = {} 
+callbacks = {} 
 
 # salas precisam armazenar usuários online e mensagens, mas separar mensagens privadas de públicas  
 def criar_sala_exemplo():
@@ -22,13 +23,14 @@ def criar_sala_exemplo():
 class BatePapoRPC(rpyc.Service):
 
     # cadastrar um usuário no sistema de bate papo pelo seu nome atribuindo um id para ele
-    def exposed_ingressar_no_sistema(self, nome):
+    def exposed_ingressar_no_sistema(self, nome, callback):
         global id_usuario 
 
         # verifica se um usuário já está no sistema ou não
         if(nome not in usuarios_cadastrados.values()):
             usuarios_cadastrados[id_usuario] = nome
             id_novo_usuario = id_usuario
+            callbacks[id_novo_usuario] = rpyc.async_(callback)
             id_usuario += 1
             print(f"Novo usuário {nome} ingressou no sistema com o identificador {id_novo_usuario}")
         else:
@@ -95,7 +97,13 @@ class BatePapoRPC(rpyc.Service):
         salas_bate_papo[nome_sala]['mensagens_publicas'].append((mensagem_formatada))
 
         # enviar mensagem para todos os usuários online
-        # ... 
+        # ... não está 100% pronto, o terminal está bloqueando o recebimento de mensagens
+        for usuario in salas_bate_papo[nome_sala]['usuarios_online']:
+            if (usuario in callbacks) and (usuario != id):
+                try:
+                    callbacks[usuario](mensagem_formatada)  
+                except Exception as e:
+                    print(f"Erro ao enviar mensagem para o cliente {usuario}: {e}")
 
     # listar todas as mensagens enviadas na sala
     def exposed_listar_mensagens(self, nome_sala):
@@ -142,7 +150,12 @@ class BatePapoRPC(rpyc.Service):
         salas_bate_papo[nome_sala]['mensagens_privadas'][id_destinatario].append(mensagem_formatada)
 
         # enviar mensagens para destinatário e remetente
-        # ...
+        # ... não está 100% pronto, o terminal está bloqueando o recebimento de mensagens
+        if id_destinatario in callbacks:
+            try:
+                callbacks[id_destinatario](mensagem_formatada['mensagem'])  # Usar callback para destinatário
+            except Exception as e:
+                print(f"Erro ao enviar mensagem privada: {e}")
     
     # listar mensagens privadas, sejam elas enviadas ou recebidas 
     def exposed_listar_mensagens_privadas(self, id, nome_sala):
