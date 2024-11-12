@@ -1,4 +1,5 @@
 import rpyc
+import threading
 
 # receber do servidor e imprimir todas as mensagens públicas enviadas em uma sala
 def imprimir_mensagens_publicas():
@@ -104,12 +105,7 @@ if(resposta_tem_sala_disponivel):
 
                             elif not mensagem.startswith(("@", "/", "#")):
                                 proxy.root.enviar_mensagem_usuario(id, id_destinatario, nome_sala, mensagem)
-                            
-                            # imprimir mensagens só para teste
-                            #mensagens_privadas = proxy.root.listar_mensagens_privadas(id, nome_sala)
-                            #print("\n\n- Teste mensagens privadas-")
-                            #print(mensagens_privadas)
-
+                                
                 else:
                     print("Usuário não encontrado\n")
 
@@ -133,11 +129,6 @@ if(resposta_tem_sala_disponivel):
             # OBS: usuários difentes ainda não recebem as mensagens enviadas!!!
             elif not mensagem.startswith(("@", "/", "#")):
                 proxy.root.enviar_mensagem(id, nome_sala, mensagem)
-            
-            # imprimir mensagens só para teste
-            #mensagens_publicas = proxy.root.listar_mensagens(nome_sala)
-            #print("\n\n- Teste mensagens públicas -")
-            #print(mensagens_publicas)
 
     else:
         print(mensagem_entrar_sala)

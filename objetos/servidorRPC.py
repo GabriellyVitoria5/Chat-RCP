@@ -1,6 +1,11 @@
 import rpyc
 from rpyc.utils.server import ThreadedServer # cria threads separadas para atender cada cliente
 
+# cores para as mensagens
+BLUE = '\033[94m' # públicas
+RED = '\033[91m' # privadas
+RESET = '\033[0m'
+
 usuarios_cadastrados = {}
 id_usuario = 1 # identificador único para cada usuário 
 salas_bate_papo = {} 
@@ -20,7 +25,7 @@ def criar_sala_exemplo():
     }
 
 # classe cria serviços que são chamados remotamente por clientes
-class BatePapoRPC(rpyc.Service):
+class ServidorBatePapoRPC(rpyc.Service):
 
     # cadastrar um usuário no sistema de bate papo pelo seu nome atribuindo um id para ele
     def exposed_ingressar_no_sistema(self, nome, callback):
@@ -93,7 +98,7 @@ class BatePapoRPC(rpyc.Service):
         if id not in salas_bate_papo[nome_sala]['usuarios_online']:
             return 
         
-        mensagem_formatada = f"{usuarios_cadastrados[id]}: {mensagem}"
+        mensagem_formatada = f"{BLUE}{usuarios_cadastrados[id]}: {mensagem}{RESET}"
         salas_bate_papo[nome_sala]['mensagens_publicas'].append((mensagem_formatada))
 
         # enviar mensagem para todos os usuários online
@@ -143,7 +148,7 @@ class BatePapoRPC(rpyc.Service):
         mensagem_formatada = {
             'remetente': id_remetente,  
             'destinatario': id_destinatario,  
-            'mensagem': f"{usuarios_cadastrados[id_remetente]}: {mensagem}"  
+            'mensagem': f"{RED}{usuarios_cadastrados[id_remetente]}: {mensagem}{RESET}"  
         }
 
         salas_bate_papo[nome_sala]['mensagens_privadas'][id_remetente].append(mensagem_formatada)
@@ -153,8 +158,8 @@ class BatePapoRPC(rpyc.Service):
         # ... não está 100% pronto, o terminal está bloqueando o recebimento de mensagens
         if id_destinatario in callbacks:
             try:
-                callbacks[id_destinatario](mensagem_formatada['mensagem'])  # usar callback para destinatário
-                callbacks[id_remetente](mensagem_formatada['mensagem'])  # usar callback para destinatário
+                callbacks[id_destinatario](mensagem_formatada['mensagem'])  # usar callback para enviar ao destinatário
+                callbacks[id_remetente](mensagem_formatada['mensagem'])  # usar callback para enviar ao remetente 
             except Exception as e:
                 print(f"Erro ao enviar mensagem privada: {e}")
     
@@ -196,5 +201,5 @@ class BatePapoRPC(rpyc.Service):
 criar_sala_exemplo()
 
 # criar e iniciar instância do servidor chamando a classe BatePapoRPC
-servidor = ThreadedServer(BatePapoRPC, port=18861)
+servidor = ThreadedServer(ServidorBatePapoRPC, port=18861)
 servidor.start()
