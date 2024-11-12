@@ -153,7 +153,8 @@ class BatePapoRPC(rpyc.Service):
         # ... não está 100% pronto, o terminal está bloqueando o recebimento de mensagens
         if id_destinatario in callbacks:
             try:
-                callbacks[id_destinatario](mensagem_formatada['mensagem'])  # Usar callback para destinatário
+                callbacks[id_destinatario](mensagem_formatada['mensagem'])  # usar callback para destinatário
+                callbacks[id_remetente](mensagem_formatada['mensagem'])  # usar callback para destinatário
             except Exception as e:
                 print(f"Erro ao enviar mensagem privada: {e}")
     

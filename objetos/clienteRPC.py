@@ -1,9 +1,25 @@
 import rpyc
-import time
-import threading
 
-# função chamada sempre que o servidor enviar uma nova mensagem
-def receber_mensagem(mensagem):
+# receber do servidor e imprimir todas as mensagens públicas enviadas em uma sala
+def imprimir_mensagens_publicas():
+    mensagens_publicas = proxy.root.listar_mensagens(nome_sala)
+    print("\n---- Mensagens públicas ----")
+    print(mensagens_publicas)
+
+# receber do servidor e imprimir todas as mensagens públicas enviadas em uma sala
+def imprimir_mensagens_privadas():
+    mensagens_privadas = proxy.root.listar_mensagens_privadas(id, nome_sala)
+    print("\n---- Mensagens privadas ----")
+    print(mensagens_privadas)
+
+# receber do servidor e imprimir lista com usuários online na sala
+def listar_usuarios_online():
+    print("\n---- Lista de usuários online ----")
+    usuarios = proxy.root.listar_usuarios(nome_sala)
+    print(usuarios)
+
+# servidor retorna mensagens que outros usuários enviaram na sala  
+def receber_mensagem_de_usuarios(mensagem):
     print(f"{mensagem}")
 
 # estabelece conexão com o servidor RPyC
@@ -13,7 +29,7 @@ print("----- Serviço de Bate-Papo RPC -----\n")
 
 # entrar no sistema
 nome = input("Informe seu nome: ")
-id = proxy.root.ingressar_no_sistema(nome, receber_mensagem)
+id = proxy.root.ingressar_no_sistema(nome, receber_mensagem_de_usuarios)
 print(f"{nome} entrou no sistema com o identificador {id}")
 
 # escolher uma sala para entrar se houver salas disponíveis
@@ -42,7 +58,7 @@ if(resposta_tem_sala_disponivel):
         print("- Digite '/#' para listar as suas mensagens privadas enviadas ou recebidas na sala")
         print("- Digite '/u' para exibir os usuários online na sala no momento")
         
-        modo_privado = False # controle para mandar mensagens orivadas
+        modo_privado = False # controle para mandar mensagens privadas
 
         # loop principal para mandar mensagens 
         while True:
@@ -71,24 +87,20 @@ if(resposta_tem_sala_disponivel):
                     
                         while modo_privado:
                             mensagem = input("Mensagem privada: ")
+                            
+                            # parar de enviar mensagens privadas
                             if (mensagem == "@") or (mensagem == "*"):
                                 modo_privado = False
                                 break
 
                             elif mensagem == "/@":
-                                mensagens_publicas = proxy.root.listar_mensagens(nome_sala)
-                                print("\n---- Mensagens públicas ----")
-                                print(mensagens_publicas)
+                                imprimir_mensagens_publicas()
 
                             elif mensagem == "/#":
-                                mensagens_privadas = proxy.root.listar_mensagens_privadas(id, nome_sala)
-                                print("\n---- Mensagens privadas ----")
-                                print(mensagens_privadas)
+                                imprimir_mensagens_privadas()
 
                             elif mensagem == "/u":
-                                print("\n---- Lista de usuários online ----")
-                                usuarios = proxy.root.listar_usuarios(nome_sala)
-                                print(usuarios)
+                                listar_usuarios_online()
 
                             elif not mensagem.startswith(("@", "/", "#")):
                                 proxy.root.enviar_mensagem_usuario(id, id_destinatario, nome_sala, mensagem)
@@ -109,19 +121,13 @@ if(resposta_tem_sala_disponivel):
                     break
 
             elif mensagem == "/@":
-                mensagens_publicas = proxy.root.listar_mensagens(nome_sala)
-                print("\n---- Mensagens públicas ----")
-                print(mensagens_publicas)
+                imprimir_mensagens_publicas()
 
             elif mensagem == "/#":
-                mensagens_privadas = proxy.root.listar_mensagens_privadas(id, nome_sala)
-                print("\n---- Mensagens privadas ----")
-                print(mensagens_privadas)
+                imprimir_mensagens_privadas()
 
             elif mensagem == "/u":
-                print("\n---- Lista de usuários online ----")
-                usuarios = proxy.root.listar_usuarios(nome_sala)
-                print(usuarios)
+                listar_usuarios_online()
 
             # enviar mensagem pública
             # OBS: usuários difentes ainda não recebem as mensagens enviadas!!!
